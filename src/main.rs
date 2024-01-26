@@ -1,13 +1,13 @@
 use std::{env, fs};
 
 trait FileFinder {
-    fn find_file(&self, path: String, file_to_find: String);
+    fn find_file(&self, path: &str, file_to_find: &str);
 }
 
 struct DirSearcher;
 
 impl FileFinder for DirSearcher {
-    fn find_file(&self, path: String, file_to_find: String) {
+    fn find_file(&self, path: &str, file_to_find: &str) {
         let result = fs::read_dir(path);
         if let Err(why) = result {
             println!("! {}", why.kind());
@@ -25,7 +25,7 @@ impl FileFinder for DirSearcher {
                             println!("File location: {:?}", cur_path);
                         }
                     } else {
-                        self.find_file(cur_path.to_string_lossy().to_string(), file_to_find.clone())
+                        self.find_file(cur_path.to_str().unwrap(), file_to_find)
                     }
                 }
             }
@@ -38,8 +38,8 @@ fn main() {
     let args: Vec<String> = env::args().collect();
 
     match args.len() {
-        2 => file_searcher.find_file(args[1].clone(), String::new()),
-        4 if args[2] == "--find" => file_searcher.find_file(args[1].clone(), args[3].clone()),
+        2 => file_searcher.find_file(&args[1], ""),
+        4 if args[2] == "--find" => file_searcher.find_file(&args[1], &args[3]),
         _ => eprintln!("Usage: program_name <path> [--find <file_name>]"),
     }
 }
